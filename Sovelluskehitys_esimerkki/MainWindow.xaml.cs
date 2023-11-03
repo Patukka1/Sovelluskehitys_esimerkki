@@ -23,13 +23,38 @@ namespace Sovelluskehitys_esimerkki
     /// </summary>
     public partial class MainWindow : Window
     {
-        string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k5000833\\source\\repos\\Sovelluskehitys_esimerkki\\tuotekanta.mdf;Integrated Security=True;Connect Timeout=30";
+        string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2101810\\Documents\\Uusitesti2.mdf;Integrated Security=True;Connect Timeout=30";
         public MainWindow()
         {
             InitializeComponent();
         }
 
         private void painike_hae_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                paivitaDataGrid("SELECT * FROM tuotteet", "tuotteet", tuote_lista);
+            }
+            catch
+            {
+                Viestirivi.Text = "tietojen haku epäonnistui";
+            }
+        }
+        private void painike_lisaa_Click(object sender, RoutedEventArgs e)
+        {
+            SqlConnection kanta = new SqlConnection(polku);
+            kanta.Open();
+
+            string sql = "INSERT INTO tuotteet (nimi, hinta) VALUES ('" + tuote_nimi.Text + "','" + tuote_hinta.Text + "')";
+
+            SqlCommand komento = new SqlCommand(sql, kanta);
+            komento.ExecuteNonQuery();
+
+            kanta.Close();
+            paivitaDataGrid("SELECT * FROM tuotteet", "tuotteet", tuote_lista);
+
+        }
+        private void paivitaDataGrid(string kysely, string taulu ,DataGrid grid)
         {
             SqlConnection kanta = new SqlConnection(polku);
             kanta.Open();
@@ -44,22 +69,13 @@ namespace Sovelluskehitys_esimerkki
             adapteri.Fill(dt);
 
             /*sijoitetaan data-taulun tiedot DataGridiin*/
-            tuote_lista.ItemsSource = dt.DefaultView;
+            grid.ItemsSource = dt.DefaultView;
 
             kanta.Close();
+          
         }
 
-        private void painike_lisaa_Click(object sender, RoutedEventArgs e)
-        {
-            SqlConnection kanta = new SqlConnection(polku);
-            kanta.Open();
-
-            string sql = "INSERT INTO tuotteet (nimi, hinta) VALUES ('" + tuote_nimi.Text + "','" + tuote_hinta.Text + "')";
-
-            SqlCommand komento = new SqlCommand(sql, kanta);
-            komento.ExecuteNonQuery();
-
-            kanta.Close();
-        }
     }
+
+    
 }
