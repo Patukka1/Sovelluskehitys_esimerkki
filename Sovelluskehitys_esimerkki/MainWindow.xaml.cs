@@ -23,10 +23,12 @@ namespace Sovelluskehitys_esimerkki
     /// </summary>
     public partial class MainWindow : Window
     {
-        string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2101810\\Documents\\Uusitesti2.mdf;Integrated Security=True;Connect Timeout=30";
+        string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2101810\\Documents\\tietokanta.mdf;Integrated Security=True;Connect Timeout=30";
         public MainWindow()
         {
             InitializeComponent();
+            paivitaComboBox();
+            paivitaDataGrid("SELECT * FROM tuotteet", "tuotteet", tuote_lista);
         }
 
         private void painike_hae_Click(object sender, RoutedEventArgs e)
@@ -74,8 +76,48 @@ namespace Sovelluskehitys_esimerkki
             kanta.Close();
           
         }
+        private void paivitaComboBox()
+        {
+            SqlConnection kanta = new SqlConnection(polku);
 
+            kanta.Open();
+            SqlCommand komento = new SqlCommand("Select * From tuotteet",kanta);
+            SqlDataReader lukija= komento.ExecuteReader();
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ID", typeof(string));
+            dt.Columns.Add("Tuote",typeof(string));
+            Combo_tuotteet.ItemsSource = dt.DefaultView;
+            Combo_tuotteet.DisplayMemberPath = "Tuote";
+            Combo_tuotteet.SelectedValuePath = "ID";
+
+            while(lukija.Read())
+            {
+                int id = lukija.GetInt32(0);
+                string tuote = lukija.GetString(1);
+                dt.Rows.Add(id, tuote);
+
+            }
+            lukija.Close();
+            kanta.Close();
+
+        }
+
+        private void Painike_poista_Click(object sender, RoutedEventArgs e)
+        {
+            SqlConnection kanta = new SqlConnection(polku);
+            kanta.Open();
+
+            string id = Combo_tuotteet.SelectedValue.ToString();
+            SqlCommand komento = new SqlCommand("DELETE FROM tuotteet Where id = " + id + ";", kanta);
+            komento.ExecuteNonQuery();
+            kanta.Close();
+
+            paivitaDataGrid("SELECT * FROM tuotteet", "tuotteet", tuote_lista);
+            paivitaComboBox();
+        }
+            
     }
+
 
     
 }
