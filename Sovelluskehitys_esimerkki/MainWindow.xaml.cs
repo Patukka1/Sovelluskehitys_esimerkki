@@ -23,7 +23,8 @@ namespace Sovelluskehitys_esimerkki
     /// </summary>
     public partial class MainWindow : Window
     {
-        string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2101810\\Documents\\tietokanta.mdf;Integrated Security=True;Connect Timeout=30";
+        private string solun_arvo;
+        string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2101810\\Documents\\Uusitesti2.mdf;Integrated Security=True;Connect Timeout=30";
         public MainWindow()
         {
             InitializeComponent();
@@ -56,7 +57,7 @@ namespace Sovelluskehitys_esimerkki
             paivitaDataGrid("SELECT * FROM tuotteet", "tuotteet", tuote_lista);
 
         }
-        private void paivitaDataGrid(string kysely, string taulu ,DataGrid grid)
+        private void paivitaDataGrid(string kysely, string taulu, DataGrid grid)
         {
             SqlConnection kanta = new SqlConnection(polku);
             kanta.Open();
@@ -74,23 +75,23 @@ namespace Sovelluskehitys_esimerkki
             grid.ItemsSource = dt.DefaultView;
 
             kanta.Close();
-          
+
         }
         private void paivitaComboBox()
         {
             SqlConnection kanta = new SqlConnection(polku);
 
             kanta.Open();
-            SqlCommand komento = new SqlCommand("Select * From tuotteet",kanta);
-            SqlDataReader lukija= komento.ExecuteReader();
+            SqlCommand komento = new SqlCommand("Select * From tuotteet", kanta);
+            SqlDataReader lukija = komento.ExecuteReader();
             DataTable dt = new DataTable();
             dt.Columns.Add("ID", typeof(string));
-            dt.Columns.Add("Tuote",typeof(string));
+            dt.Columns.Add("Tuote", typeof(string));
             Combo_tuotteet.ItemsSource = dt.DefaultView;
             Combo_tuotteet.DisplayMemberPath = "Tuote";
             Combo_tuotteet.SelectedValuePath = "ID";
 
-            while(lukija.Read())
+            while (lukija.Read())
             {
                 int id = lukija.GetInt32(0);
                 string tuote = lukija.GetString(1);
@@ -115,9 +116,57 @@ namespace Sovelluskehitys_esimerkki
             paivitaDataGrid("SELECT * FROM tuotteet", "tuotteet", tuote_lista);
             paivitaComboBox();
         }
-            
-    }
+
+        private void tuote_lista_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            int sarake = tuote_lista.CurrentCell.Column.DisplayIndex;
+            solun_arvo = (e.Row.Item as DataRowView).Row[sarake].ToString();
+
+            Viestirivi.Text = "sarake" + sarake + " Arvo " + solun_arvo;
+
+        }
+
+        private void tuote_lista_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            try
+            {
+                int sarake = tuote_lista.CurrentCell.Column.DisplayIndex;
+                string uusi_arvo = ((TextBox)e.EditingElement).Text;
+
+                int tuote_id = int.Parse((e.Row.Item as DataRowView).Row[0].ToString());
+
+                if (solun_arvo != uusi_arvo)
+                {
+                    string kysely = "";
+                    string kanta_sarake = "";
+                    SqlConnection kanta = new SqlConnection(polku);
+                    kanta.Open();
+                    if (sarake == 1) kanta_sarake = "nimi";
+                    else if (sarake == 2) kanta_sarake = "hinta";
+
+                    kysely = " update tuotteet Set " + kanta_sarake + "='" + uusi_arvo + "'Where id=" + tuote_id;
+
+                    SqlCommand komento = new SqlCommand(kysely, kanta);
+                    komento.ExecuteNonQuery();
+
+                    kanta.Close();
+                    Viestirivi.Text = "uusi arvo:" + uusi_arvo;
+
+                }
+                else
+                {
+                    Viestirivi.Text = "Arvo ei muuttunut";
+
+                }
+            }
+            catch
+            {
+                Viestirivi.Text = "muokkaus ei onnistunut";
+            }
+
+        }
+}    }   
 
 
     
-}
+

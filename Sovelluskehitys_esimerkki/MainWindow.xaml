@@ -17,7 +17,7 @@
         <Label Content="Tuotteen hinta" HorizontalAlignment="Left" Margin="454,124,0,0" VerticalAlignment="Top" Height="30" Width="95"/>
         <TextBox x:Name="tuote_nimi" HorizontalAlignment="Left" Margin="10,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="144" Height="24" Grid.Column="1"/>
         <TextBox x:Name="tuote_hinta" HorizontalAlignment="Left" Margin="10,127,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="144" Height="24" Grid.Column="1"/>
-        <DataGrid x:Name="tuote_lista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="32,152,158,70"/>
+        <DataGrid x:Name="tuote_lista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="32,152,158,70" BeginningEdit="tuote_lista_BeginningEdit" CellEditEnding="tuote_lista_CellEditEnding"/>
 
         <TextBox x:Name="Viestirivi" HorizontalAlignment="Left" Margin="32,400,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="745" Height="24" Grid.ColumnSpan="2"/>
         <ComboBox x:Name="Combo_tuotteet" HorizontalAlignment="Left" Margin="570,242,0,0" VerticalAlignment="Top" Width="178" Height="38" Grid.ColumnSpan="2"/>
